@@ -21,6 +21,15 @@ console.log('🔧 MySQL Config:', {
   hasPassword: !!MYSQL_CONFIG.password
 });
 
+// Debug environment variables
+console.log('🔧 Environment Variables:', {
+  MYSQL_HOST: process.env.MYSQL_HOST,
+  MYSQL_USER: process.env.MYSQL_USER,
+  MYSQL_DATABASE: process.env.MYSQL_DATABASE,
+  MYSQL_PORT: process.env.MYSQL_PORT,
+  NODE_ENV: process.env.NODE_ENV
+});
+
 let pool: mysql.Pool;
 
 // Create MySQL connection pool

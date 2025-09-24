@@ -29,7 +29,7 @@ export async function GET(req: Request) {
         id: user.id,
         email: user.email,
         role: user.role,
-        full_name: user.full_name,
+        name: user.name,
         is_active: user.is_active,
         status: user.status,
         created_at: user.created_at,

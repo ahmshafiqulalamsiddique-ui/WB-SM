@@ -1,0 +1,25 @@
+# Hostinger Environment Configuration
+# Copy this to .env.local for local development
+# Copy this to .env.production for Hostinger production
+
+# MySQL Configuration (Hostinger)
+MYSQL_HOST=localhost
+MYSQL_USER=your_hostinger_mysql_user
+MYSQL_PASSWORD=your_hostinger_mysql_password
+MYSQL_DATABASE=your_hostinger_mysql_database
+MYSQL_PORT=3306
+
+# Session Configuration
+NEXTAUTH_SECRET=taleskillz-super-secret-key-32-chars-long-change-this
+NEXTAUTH_URL=https://taleskillz.com
+
+# Public URL
+NEXT_PUBLIC_APP_URL=https://taleskillz.com
+
+# Disable MongoDB/Supabase (we're using MySQL only)
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+MONGODB_URI=
+
+# Node.js Environment
+NODE_ENV=production

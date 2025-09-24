@@ -1,0 +1,23 @@
+// Quick MongoDB Atlas Setup Helper
+console.log('🚀 MongoDB Atlas Setup Helper');
+console.log('');
+console.log('Follow these steps to set up MongoDB Atlas:');
+console.log('');
+console.log('1. 🌐 Go to: https://www.mongodb.com/atlas');
+console.log('2. 📝 Sign up for free account');
+console.log('3. 🆓 Choose "Free Shared" cluster');
+console.log('4. 👤 Create database user:');
+console.log('   - Username: datacollect-user');
+console.log('   - Password: datacollect123');
+console.log('5. 🔗 Get connection string from "Connect" button');
+console.log('6. 📄 Create .env.local file with:');
+console.log('');
+console.log('MONGODB_URI=mongodb+srv://datacollect-user:datacollect123@cluster0.xxxxx.mongodb.net/datacollect?retryWrites=true&w=majority');
+console.log('MONGODB_DB=datacollect');
+console.log('NEXT_PUBLIC_SUPABASE_URL=');
+console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY=');
+console.log('');
+console.log('7. 🚀 Run: npm run mongodb:init');
+console.log('8. 🎉 Run: npm run dev');
+console.log('');
+console.log('Your app will then use MongoDB Atlas as the primary database!');

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     // Restore record status to 'draft'
     const updates = {
-      status: 'draft',
+      status: 'draft' as const,
       restoredBy: session.user.email,
       restoredAt: new Date().toISOString(),
       savedAt: new Date().toISOString()

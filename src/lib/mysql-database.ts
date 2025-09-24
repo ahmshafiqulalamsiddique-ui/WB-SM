@@ -235,7 +235,7 @@ export async function addRow(row: DataRow) {
   
   const result = await executeQuery(query, params);
   console.log("Added row to MySQL database:", row.id);
-  return { id: row.id, ...row };
+  return { ...row };
 }
 
 export async function getRows(): Promise<DataRow[]> {

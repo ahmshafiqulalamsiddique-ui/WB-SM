@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { UserConsistencyManager } from "@/lib/user-consistency";
+import { UserConsistencyManager } from "@/lib/user-consistency-client";
 
 export async function POST() {
   try {

@@ -12,6 +12,15 @@ const MYSQL_CONFIG = {
   queueLimit: 0,
 };
 
+// Debug logging
+console.log('🔧 MySQL Database Config:', {
+  host: MYSQL_CONFIG.host,
+  user: MYSQL_CONFIG.user,
+  database: MYSQL_CONFIG.database,
+  port: MYSQL_CONFIG.port,
+  hasPassword: !!MYSQL_CONFIG.password
+});
+
 let pool: mysql.Pool;
 
 // Create MySQL connection pool

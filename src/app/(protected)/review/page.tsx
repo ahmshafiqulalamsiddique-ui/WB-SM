@@ -75,7 +75,7 @@ export default function ReviewPage() {
         console.error("❌ Failed to load user role - no user or role:", data);
         // Don't hardcode role - let it be undefined to debug
         console.log("🔧 DEBUG: User role not loaded, will show debug info");
-        setUserRole(undefined);
+        setUserRole('');
       }
     } catch (error) {
       console.error("❌ Failed to load user role:", error);

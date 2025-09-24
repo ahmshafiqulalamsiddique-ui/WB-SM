@@ -108,3 +108,4 @@ create-*.js
 
 # MongoDB data (if running locally)
 data/
+.vercel

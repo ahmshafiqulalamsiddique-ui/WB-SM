@@ -30,10 +30,8 @@ export async function GET(req: Request) {
         email: user.email,
         role: user.role,
         name: user.name,
-        is_active: user.is_active,
-        status: user.status,
-        created_at: user.created_at,
-        updated_at: user.updated_at
+        isActive: user.isActive,
+        createdAt: user.createdAt
       }
     });
 

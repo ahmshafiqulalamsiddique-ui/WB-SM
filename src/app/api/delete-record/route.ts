@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     // Update record status to 'deleted' (soft delete)
     const updates = {
-      status: 'deleted',
+      status: 'deleted' as const,
       deletedBy: session.user.email,
       deletedAt: new Date().toISOString(),
       savedAt: new Date().toISOString()

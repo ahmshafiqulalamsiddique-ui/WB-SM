@@ -17,6 +17,21 @@ import {
   getAllUsers as mysqlGetAllUsers
 } from './mysql-database'
 
+import {
+  addRow as localAddRow,
+  getRows as localGetRows,
+  updateSpecificRow as localUpdateSpecificRow,
+  updateRow as localUpdateRow,
+  getRowById as localGetRowById,
+  getRowsByStatus as localGetRowsByStatus,
+  deleteRow as localDeleteRow,
+  getRowsByUser as localGetRowsByUser,
+  clearData as localClearData,
+  createUser as localCreateUser,
+  getUserByEmail as localGetUserByEmail,
+  getAllUsers as localGetAllUsers
+} from './local-storage'
+
 // Data types compatible with existing code
 export interface DataRow {
   id: string
@@ -60,69 +75,72 @@ export interface DataRow {
 
 // Database operations that match the existing storage interface
 export async function addRow(row: DataRow) {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlAddRow(row);
   }
-  throw new Error('MySQL database not configured');
+  return await localAddRow(row);
 }
 
 export async function getRows(): Promise<DataRow[]> {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlGetRows();
   }
-  return [];
+  return await localGetRows();
 }
 
 // No temporary memory storage - all data goes to MySQL database
 
 export async function updateSpecificRow(id: string, savedAt: string, updates: Partial<DataRow>) {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlUpdateSpecificRow(id, savedAt, updates);
   }
-  throw new Error('MySQL database not configured');
+  return await localUpdateSpecificRow(id, savedAt, updates);
 }
 
 export async function updateRow(id: string, updates: Partial<DataRow>) {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlUpdateRow(id, updates);
   }
-  throw new Error('MySQL database not configured');
+  return await localUpdateRow(id, updates);
 }
 
 export async function getRowById(id: string): Promise<DataRow | undefined> {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlGetRowById(id);
   }
-  return undefined;
+  return await localGetRowById(id);
 }
 
 export async function getRowsByStatus(status: string): Promise<DataRow[]> {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlGetRowsByStatus(status);
   }
-  return [];
+  return await localGetRowsByStatus(status);
 }
 
 export async function deleteRow(id: string, savedAt: string): Promise<boolean> {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlDeleteRow(id, savedAt);
   }
-  return false;
+  return await localDeleteRow(id, savedAt);
 }
 
 export async function getRowsByUser(user: string): Promise<DataRow[]> {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlGetRowsByUser(user);
   }
-  return [];
+  return await localGetRowsByUser(user);
 }
 
 export async function clearData() {
   try {
-    if (isMySQLConfigured) {
+    if (isMySQLConfigured()) {
       const query = "DELETE FROM submissions";
       await executeQuery(query);
       console.log("All submissions cleared from MySQL database");
+    } else {
+      await localClearData();
+      console.log("All submissions cleared from local storage");
     }
   } catch (error) {
     console.error("Error clearing data:", error);
@@ -140,25 +158,27 @@ export async function createUser(userData: {
   email: string;
   role: 'submitter' | 'reviewer' | 'approver' | 'admin';
   fullName: string;
+  password?: string;
+  isActive?: boolean;
 }) {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlCreateUser(userData);
   }
-  throw new Error('MySQL database not configured');
+  return await localCreateUser(userData);
 }
 
 export async function getUserByEmail(email: string) {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlGetUserByEmail(email);
   }
-  return null;
+  return await localGetUserByEmail(email);
 }
 
 export async function getAllUsers() {
-  if (isMySQLConfigured) {
+  if (isMySQLConfigured()) {
     return await mysqlGetAllUsers();
   }
-  return [];
+  return await localGetAllUsers();
 }
 
 

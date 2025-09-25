@@ -68,8 +68,26 @@ export async function closeConnection() {
 }
 
 // Check if MySQL is configured
-// MySQL database configuration
-export const isMySQLConfigured = true;
+let mysqlConfigured = false;
+
+// Test MySQL connection
+async function testMySQLConnection() {
+  try {
+    const testConnection = mysql.createConnection(MYSQL_CONFIG);
+    await testConnection.execute('SELECT 1');
+    await testConnection.end();
+    mysqlConfigured = true;
+    console.log('✅ MySQL connection test successful');
+  } catch (error) {
+    mysqlConfigured = false;
+    console.log('❌ MySQL connection test failed:', error.message);
+  }
+}
+
+// Test connection on module load
+testMySQLConnection();
+
+export const isMySQLConfigured = () => mysqlConfigured;
 
 // Data types compatible with existing code
 export interface DataRow {

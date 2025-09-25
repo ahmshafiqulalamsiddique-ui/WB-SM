@@ -1,5 +1,6 @@
 import { User, Role } from "./session";
-import { getUserByEmail as mysqlGetUserByEmail, getAllUsers as mysqlGetAllUsers, createUser as mysqlCreateUser, executeQuery } from "./mysql-database";
+import { getUserByEmail as mysqlGetUserByEmail, getAllUsers as mysqlGetAllUsers, createUser as mysqlCreateUser, executeQuery, isMySQLConfigured } from "./mysql-database";
+import { getUserByEmail as localGetUserByEmail, getAllUsers as localGetAllUsers, createUser as localCreateUser } from "./local-storage";
 
 export interface UserProfile {
   id: string;
@@ -51,27 +52,56 @@ export interface UserStats {
 
 export async function getAllUsers(): Promise<UserProfile[]> {
   try {
-    // Get only non-deleted users
-    const query = "SELECT * FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC";
-    const rows = await executeQuery(query) as any[];
-    return rows.map(user => dbUserToProfile(user));
+    if (isMySQLConfigured()) {
+      // Get only non-deleted users
+      const query = "SELECT * FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC";
+      const rows = await executeQuery(query) as any[];
+      return rows.map(user => dbUserToProfile(user));
+    } else {
+      const localUsers = await localGetAllUsers();
+      return localUsers.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        passwordHash: user.passwordHash
+      }));
+    }
   } catch (error) {
-    console.error('MySQL error, using local fallback for users:', error);
+    console.error('Error getting users:', error);
     return [];
   }
 }
 
 export async function getUserByEmail(email: string): Promise<UserProfile | undefined> {
   try {
-    // Get only non-deleted users
-    const query = "SELECT * FROM users WHERE email = ? AND deleted_at IS NULL";
-    const rows = await executeQuery(query, [email]) as any[];
-    
-    if (rows.length > 0) {
-      return dbUserToProfile(rows[0]);
+    if (isMySQLConfigured()) {
+      // Get only non-deleted users
+      const query = "SELECT * FROM users WHERE email = ? AND deleted_at IS NULL";
+      const rows = await executeQuery(query, [email]) as any[];
+      
+      if (rows.length > 0) {
+        return dbUserToProfile(rows[0]);
+      }
+      
+      return undefined;
+    } else {
+      const localUser = await localGetUserByEmail(email);
+      if (localUser) {
+        return {
+          id: localUser.id,
+          email: localUser.email,
+          name: localUser.name,
+          role: localUser.role,
+          isActive: localUser.isActive,
+          createdAt: localUser.createdAt,
+          passwordHash: localUser.passwordHash
+        };
+      }
+      return undefined;
     }
-    
-    return undefined;
   } catch (error) {
     console.error('Error fetching user by email:', error);
     return undefined;
@@ -104,32 +134,52 @@ export async function getUserById(id: string): Promise<UserProfile | undefined> 
 
 export async function createUser(userData: Omit<UserProfile, 'id' | 'createdAt' | 'passwordHash'> & { password: string }): Promise<UserProfile> {
   try {
-    const bcrypt = require('bcryptjs');
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    
-    const query = `
-      INSERT INTO users (email, password, name, role, status) 
-      VALUES (?, ?, ?, ?, ?)
-    `;
-    const params = [
-      userData.email,
-      hashedPassword,
-      userData.name,
-      userData.role,
-      userData.role === 'admin' ? 'active' : 'pending'
-    ];
-    
-    const result = await executeQuery(query, params) as any;
-    
-    return {
-      id: result.insertId?.toString() || Date.now().toString(),
-      email: userData.email,
-      name: userData.name,
-      role: userData.role,
-      isActive: userData.role === 'admin',
-      createdAt: new Date().toISOString(),
-      passwordHash: hashedPassword
-    };
+    if (isMySQLConfigured()) {
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      
+      const query = `
+        INSERT INTO users (email, password, name, role, status) 
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      const params = [
+        userData.email,
+        hashedPassword,
+        userData.name,
+        userData.role,
+        userData.role === 'admin' ? 'active' : 'pending'
+      ];
+      
+      const result = await executeQuery(query, params) as any;
+      
+      return {
+        id: result.insertId?.toString() || Date.now().toString(),
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        isActive: userData.role === 'admin',
+        createdAt: new Date().toISOString(),
+        passwordHash: hashedPassword
+      };
+    } else {
+      const localUser = await localCreateUser({
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        password: userData.password,
+        isActive: userData.role === 'admin'
+      });
+      
+      return {
+        id: localUser.id,
+        email: localUser.email,
+        name: localUser.name,
+        role: localUser.role,
+        isActive: localUser.isActive,
+        createdAt: localUser.createdAt,
+        passwordHash: localUser.passwordHash
+      };
+    }
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;
